@@ -41,3 +41,69 @@ function updateClock(){
 }
 
 updateClock();
+
+let initialX = 0;
+let initialY = 0;
+
+let moveElement = false;
+let events = {
+	mouse: {
+		down: "mousedown",
+		move: "mousemove",
+		up: "mouseup",
+	},
+	touch: {
+		down: "touchstart",
+		move: "touchmove",
+		up: "touchend",
+	},
+};
+let deviceType = "";
+  //Detech touch device
+const isTouchDevice = () => {
+	try {
+	  //We try to create TouchEvent (it would fail for desktops and throw error)
+		document.createEvent("TouchEvent");
+		deviceType = "touch";
+		return true;
+	} catch (e) {
+		deviceType = "mouse";
+		return false;
+	}
+};
+isTouchDevice();
+  //Start (mouse down / touch start)
+	clock_div.addEventListener(events[deviceType].down, (e) => {
+	e.preventDefault();
+	//initial x and y points
+	initialX = !isTouchDevice() ? e.clientX : e.touches[0].clientX;
+	initialY = !isTouchDevice() ? e.clientY : e.touches[0].clientY;
+	//Start movement
+	moveElement = true;
+});
+  //Move
+clock_div.addEventListener(events[deviceType].move, (e) => {
+	//if movement == true then set top and left to new X andY while removing any offset
+	if (moveElement) {
+		e.preventDefault();
+		let newX = !isTouchDevice() ? e.clientX : e.touches[0].clientX;
+		let newY = !isTouchDevice() ? e.clientY : e.touches[0].clientY;
+		clock_div.style.top =
+		clock_div.offsetTop - (initialY - newY) + "px";
+		clock_div.style.left =
+		clock_div.offsetLeft - (initialX - newX) + "px";
+		initialX = newX;
+		initialY = newY;
+	}
+});
+  //mouse up / touch end
+clock_div.addEventListener(
+	events[deviceType].up,
+	(stopMovement = (e) => {
+		moveElement = false;
+	})
+);
+clock_div.addEventListener("mouseleave", stopMovement);
+clock_div.addEventListener(events[deviceType].up, (e) => {
+	moveElement = false;
+});
