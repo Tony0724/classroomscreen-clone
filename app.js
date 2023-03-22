@@ -10,7 +10,11 @@ function getTime() {
 	const hour = String(date.getHours()).padStart(2, "0");
 	const minute = String(date.getMinutes()).padStart(2, "0");
 	const second = String(date.getSeconds()).padStart(2, "0");
-	clock_p.innerHTML = `${hour}:${minute}:${second}`;
+	if(second > 49) {
+		clock_p.innerHTML = `${hour}:${minute}:<span style="color:red;">${second}</span>`;
+	} else {
+		clock_p.innerHTML = `${hour}:${minute}:<span style="color:green;">${second}</span>`;
+	}
 }
 
 setInterval(getTime, 1000)
@@ -94,6 +98,23 @@ clock_div.addEventListener(events[deviceType].move, (e) => {
 		clock_div.offsetLeft - (initialX - newX) + "px";
 		initialX = newX;
 		initialY = newY;
+	}
+	const Bounding = clock_div.getBoundingClientRect();
+	if (Bounding.top < -1) {
+		alert("The clock element is not on the viewport!");
+		clock_div.style.top = 10 + 'px';
+	}
+	if (Bounding.left < -1) {
+		alert("The clock element is not on the viewport!");
+		clock_div.style.left = 10 + 'px';
+	}
+	if (Bounding.bottom > (window.innerHeight || document.documentElement.clientHeight)) {
+		alert("The clock element is not on the viewport!");
+		clock_div.style.top = window.innerHeight - 356 + 'px';
+	}
+	if (Bounding.right > (window.innerWidth || document.documentElement.clientWidth)) {
+		alert("The clock element is not on the viewport!");
+		clock_div.style.left = window.innerWidth - 381 + 'px';
 	}
 });
   //mouse up / touch end
