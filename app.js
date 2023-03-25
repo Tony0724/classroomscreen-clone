@@ -2,8 +2,27 @@ const body = document.body;
 const clock_div = body.querySelector(".clock_div");
 const clock_p = body.querySelector(".clock_p");
 const clock_btn = body.querySelector(".clock_btn");
+const text_btn = body.querySelector(".text_btn");
+const text_div = body.querySelector(".text_div");
 
-clock_div.hidden = true;
+clock_div.style.display = 'none';
+text_div.style.display = 'none';
+
+clock_btn.addEventListener("click", () => {
+	if(clock_div.style.display === 'none') {
+		clock_div.style.display = 'inline-block'
+	} else {
+		clock_div.style.display = 'none';
+	}
+})
+
+text_btn.addEventListener("click", () => {
+	if(text_div.style.display === 'none') {
+		text_div.style.display = 'inline-block'
+	} else {
+		text_div.style.display = 'none';
+	}
+})
 
 function getTime() {
 	let date = new Date()
@@ -19,13 +38,6 @@ function getTime() {
 
 setInterval(getTime, 1000)
 
-clock_btn.addEventListener("click", () => {
-	if(clock_div.hidden == true) {
-		clock_div.hidden = false;
-	} else {
-		clock_div.hidden = true;
-	}
-})
 
 const secDiv = document.getElementById('sec');
 const minDiv = document.getElementById('min');
@@ -127,4 +139,87 @@ clock_div.addEventListener(
 clock_div.addEventListener("mouseleave", stopMovement);
 clock_div.addEventListener(events[deviceType].up, (e) => {
 	moveElement = false;
+});
+
+let Textintial = 0;
+let TextinitialY = 0;
+
+let moveElementText = false;
+let TextEvents = {
+	mouse: {
+		down: "mousedown",
+		move: "mousemove",
+		up: "mouseup",
+	},
+	touch: {
+		down: "touchstart",
+		move: "touchmove",
+		up: "touchend",
+	},
+};
+let TextdeviceType = "";
+  //Detech touch device
+const TextisTouchDevice = () => {
+	try {
+	  //We try to create TouchEvent (it would fail for desktops and throw error)
+		document.createEvent("TouchEvent");
+		TextdeviceType = "touch";
+		return true;
+	} catch (e) {
+		deviceType = "mouse";
+		return false;
+	}
+};
+TextisTouchDevice();
+  //Start (mouse down / touch start)
+	text_div.addEventListener(TextEvents[deviceType].down, (e) => {
+	e.preventDefault();
+	//initial x and y points
+	Textintial = !TextisTouchDevice() ? e.clientX : e.touches[0].clientX;
+	TextinitialY = !TextisTouchDevice() ? e.clientY : e.touches[0].clientY;
+	//Start movement
+	moveElementText = true;
+});
+  //Move
+text_div.addEventListener(TextEvents[deviceType].move, (e) => {
+	//if movement == true then set top and left to new X andY while removing any offset
+	if (moveElementText) {
+		e.preventDefault();
+		let newX = !TextisTouchDevice() ? e.clientX : e.touches[0].clientX;
+		let newY = !TextisTouchDevice() ? e.clientY : e.touches[0].clientY;
+		text_div.style.top =
+		text_div.offsetTop - (TextinitialY - newY) + "px";
+		text_div.style.left =
+		text_div.offsetLeft - (Textintial - newX) + "px";
+		Textintial = newX;
+		TextinitialY = newY;
+	}
+	const Bounding = text_div.getBoundingClientRect();
+	if (Bounding.top < -1) {
+		alert("The clock element is not on the viewport!");
+		text_div.style.top = 10 + 'px';
+	}
+	if (Bounding.left < -1) {
+		alert("The clock element is not on the viewport!");
+		text_div.style.left = 10 + 'px';
+	}
+	if (Bounding.bottom > (window.innerHeight || document.documentElement.clientHeight)) {
+		alert("The clock element is not on the viewport!");
+		text_div.style.top = window.innerHeight - 356 + 'px';
+	}
+	if (Bounding.right > (window.innerWidth || document.documentElement.clientWidth)) {
+		alert("The clock element is not on the viewport!");
+		text_div.style.left = window.innerWidth - 381 + 'px';
+	}
+});
+  //mouse up / touch end
+text_div.addEventListener(
+	TextEvents[deviceType].up,
+	(stopMovement = (e) => {
+		moveElementText = false;
+	})
+);
+text_div.addEventListener("mouseleave", stopMovement);
+text_div.addEventListener(TextEvents[deviceType].up, (e) => {
+	moveElementText = false;
 });
