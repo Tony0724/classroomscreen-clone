@@ -4,6 +4,11 @@ const clock_p = body.querySelector(".clock_p");
 const clock_btn = body.querySelector(".clock_btn");
 const text_btn = body.querySelector(".text_btn");
 const text_div = body.querySelector(".text_div");
+const text_move_btn = text_div.querySelector(".move")
+const textarea = text_div.querySelector("textarea")
+const hide_btn = text_div.querySelector(".hide")
+const container = text_div.querySelector(".container");
+const show_btn = text_div.querySelector(".show");
 
 clock_div.style.display = 'none';
 text_div.style.display = 'none';
@@ -172,7 +177,7 @@ const TextisTouchDevice = () => {
 };
 TextisTouchDevice();
   //Start (mouse down / touch start)
-	text_div.addEventListener(TextEvents[deviceType].down, (e) => {
+	text_move_btn.addEventListener(TextEvents[deviceType].down, (e) => {
 	e.preventDefault();
 	//initial x and y points
 	Textintial = !TextisTouchDevice() ? e.clientX : e.touches[0].clientX;
@@ -181,7 +186,7 @@ TextisTouchDevice();
 	moveElementText = true;
 });
   //Move
-text_div.addEventListener(TextEvents[deviceType].move, (e) => {
+text_move_btn.addEventListener(TextEvents[deviceType].move, (e) => {
 	//if movement == true then set top and left to new X andY while removing any offset
 	if (moveElementText) {
 		e.preventDefault();
@@ -194,7 +199,7 @@ text_div.addEventListener(TextEvents[deviceType].move, (e) => {
 		Textintial = newX;
 		TextinitialY = newY;
 	}
-	const Bounding = text_div.getBoundingClientRect();
+	const Bounding = text_move_btn.getBoundingClientRect();
 	if (Bounding.top < -1) {
 		alert("The clock element is not on the viewport!");
 		text_div.style.top = 10 + 'px';
@@ -213,13 +218,56 @@ text_div.addEventListener(TextEvents[deviceType].move, (e) => {
 	}
 });
   //mouse up / touch end
-text_div.addEventListener(
+text_move_btn.addEventListener(
 	TextEvents[deviceType].up,
 	(stopMovement = (e) => {
 		moveElementText = false;
 	})
 );
-text_div.addEventListener("mouseleave", stopMovement);
-text_div.addEventListener(TextEvents[deviceType].up, (e) => {
+text_move_btn.addEventListener("mouseleave", stopMovement);
+text_move_btn.addEventListener(TextEvents[deviceType].up, (e) => {
 	moveElementText = false;
 });
+
+function formatDoc(cmd, value=null) {
+	if(value) {
+		document.execCommand(cmd, false, value);
+	} else {
+		document.execCommand(cmd);
+	}
+}
+
+function addLink() {
+	const url = prompt('Insert url');
+	formatDoc('createLink', url);
+}
+
+const filename = document.getElementById('filename');
+
+function fileHandle(value) {
+	if(value === 'new') {
+		content.innerHTML = '';
+		filename.value = 'untitled';
+	} else if(value === 'txt') {
+		const blob = new Blob([content.innerText])
+		const url = URL.createObjectURL(blob)
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = `${filename.value}.txt`;
+		link.click();
+	} else if(value === 'pdf') {
+		html2pdf(content).save(filename.value);
+	}
+}
+
+show_btn.hidden = true;
+
+hide_btn.addEventListener("click", () => {
+	container.hidden = true;
+	show_btn.hidden = false
+})
+
+show_btn.addEventListener("click", () => {
+	container.hidden = false;
+	show_btn.hidden = true
+})
