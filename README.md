@@ -1,3 +1,3 @@
-# Study Tool
+# classroomscreen clone
 
-I made study tool so that the students hard
+I made classroomscreen clone!
