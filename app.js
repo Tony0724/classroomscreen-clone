@@ -12,6 +12,7 @@ const show_btn = text_div.querySelector(".show");
 const time_div = body.querySelector(".time_div");
 const time_btn = body.querySelector(".time_btn");
 const start_btn = time_div.querySelector("#start_btn");
+const dialog = body.querySelector("dialog");
 
 clock_div.style.display = 'none';
 text_div.style.display = 'none';
@@ -43,7 +44,10 @@ time_btn.addEventListener("click",() => {
 
 const timer_p = time_div.querySelector('p');
 
-// console.log(timer_p)
+dialog.addEventListener("close", () => {
+	time_div.classList.remove('start_btn_shake');
+	time_div.style.display = 'none';
+})
 
 function countdown( elementName, minutes, seconds ) {
     var element, endTime, hours, mins, msLeft, time;
@@ -56,6 +60,8 @@ function countdown( elementName, minutes, seconds ) {
         msLeft = endTime - (+new Date);
         if ( msLeft < 1000 ) {
             timer_p.innerHTML = "Time is up!";
+			time_div.classList.add('start_btn_shake');
+			dialog.showModal();
         } else {
             time = new Date( msLeft );
             hours = time.getUTCHours();
