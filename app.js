@@ -49,6 +49,8 @@ dialog.addEventListener("close", () => {
 	time_div.style.display = 'none';
 })
 
+let timer_stop = false;
+
 function countdown( elementName, minutes, seconds ) {
     var element, endTime, hours, mins, msLeft, time;
 
@@ -60,9 +62,18 @@ function countdown( elementName, minutes, seconds ) {
         msLeft = endTime - (+new Date);
         if ( msLeft < 1000 ) {
             timer_p.innerHTML = "Time is up!";
+			timer_p.style.color = 'blue'
+			timer_stop = true;
 			time_div.classList.add('start_btn_shake');
 			dialog.showModal();
-        } else {
+        } else if( msLeft <= 30000) {
+			timer_p.style.color = 'red';
+			time = new Date( msLeft );
+            hours = time.getUTCHours();
+            mins = time.getUTCMinutes();
+            timer_p.innerHTML = (hours ? hours + ':' + twoDigits( mins ) : mins) + ':' + twoDigits( time.getUTCSeconds() );
+            setTimeout( updateTimer, time.getUTCMilliseconds() + 500 );
+		} else {
             time = new Date( msLeft );
             hours = time.getUTCHours();
             mins = time.getUTCMinutes();
@@ -401,29 +412,59 @@ time_div.addEventListener(TimerEvents[deviceType].up, (e) => {
 	moveElementTimer = false;
 });
 
+let count_start_btn = 0;
+
 function handleTimerStart() {
+	count_start_btn++
 	let minute_value = null;
 	let second_value = null;
 	function handleMinuteTime() {
-		const prom = prompt("How long do you want to set the minute?", 10)
+		const prom = prompt("How long do you want to set the minute?", 10);
 		minute_value = prom;
 	}
 	function handleSecondTime() {
 		const prom = prompt("How long do you want to set the second", 30)
 		second_value = prom;
 	}
-	handleMinuteTime();
-	handleSecondTime();
-	if(isNaN(minute_value) || isNaN(second_value)) {
-		alert("Please write a number value!")
-	} else if(minute_value === "" && second_value === "") {
-		alert("Please write not a empty value!")
-	} else if(minute_value === "") {
-		countdown("time_div", 0, parseInt(second_value))
-	} else if(second_value === "") {
-		countdown("time_div", parseInt(minute_value), 0)
+	if(count_start_btn > 1) {
+		if(timer_stop == true) {
+			handleMinuteTime();
+			handleSecondTime();
+			if(isNaN(minute_value) || isNaN(second_value)) {
+				alert("Please write a number value!");
+			} else if(minute_value == null || second_value == null) {
+				alert("Please make sure the time (if you want to set minute or second is 0, please input 0)");
+			} else if(minute_value === "" && second_value === "") {
+				alert("Please write not a empty value!");
+			} else if(minute_value === "") {
+				countdown("time_div", 0, parseInt(second_value))
+			} else if(second_value === "") {
+				countdown("time_div", parseInt(minute_value), 0)
+			} else {
+				countdown("time_div", parseInt(minute_value), parseInt(second_value))
+			}
+		} else {
+			alert("timer_stop is false;")
+		}
 	} else {
-		countdown("time_div", parseInt(minute_value), parseInt(second_value))
+		handleMinuteTime();
+		handleSecondTime();
+		if(isNaN(minute_value) || isNaN(second_value)) {
+			alert("Please write a number value!");
+			timer_stop = true;
+		} else if(minute_value == null || second_value == null) {
+			alert("Please make sure the time (if you want to set minute or second is 0, please input 0)");
+			timer_stop = true;
+		} else if(minute_value === "" && second_value === "") {
+			alert("Please write not a empty value!");
+			timer_stop = true;
+		} else if(minute_value === "") {
+			countdown("time_div", 0, parseInt(second_value))
+		} else if(second_value === "") {
+			countdown("time_div", parseInt(minute_value), 0)
+		} else {
+			countdown("time_div", parseInt(minute_value), parseInt(second_value))
+		}
 	}
 }
 
